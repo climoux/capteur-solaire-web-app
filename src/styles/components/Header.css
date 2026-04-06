@@ -1,0 +1,25 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  color: var(--accent-peach);
+}
+
+.header-brand h1 {
+  color: var(--accent-peach);
+  font-family: 'Space Grotesk', 'Poppins', 'Segoe UI', sans-serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}

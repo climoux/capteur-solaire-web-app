@@ -1,0 +1,78 @@
+.login-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: var(--bg-color);
+    text-align: center;
+    gap: 60px;
+}
+
+.login-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.login-header h1 {
+    margin-bottom: 4px;
+    font-family: 'Space Grotesk';
+    font-size: 32px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.login-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 400px;
+}
+
+.input-group {
+    display: flex;
+    background: var(--card-bg);
+    border-radius: 30px;
+    padding: 8px;
+    height: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-group input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 10px;
+    padding-left: 15px;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-group button {
+    background: var(--accent-peach);
+    color: var(--bg-color);
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.input-group button:hover:not(:disabled) {
+    background: #ff9e8080;
+}
+
+.input-group button:disabled {
+    opacity: 0.5;
+    background: var(--text-secondary);
+}

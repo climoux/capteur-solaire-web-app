@@ -1,0 +1,75 @@
+.control-panel {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.control-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.control-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+}
+
+.control-info h3 {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.control-info p {
+  font-size: 14px;
+  line-height: 18px;
+  color: #AB8980;
+}
+
+.mode-toggle, .state-selector {
+  display: flex;
+  background: #333537;
+  border-radius: 25px;
+  padding: 5px;
+  gap: 5px;
+  height: 50px;
+  margin-bottom: 12px;
+}
+
+.mode-toggle button, .state-selector button {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 25px;
+  color: #AB8980;
+  transition: all 0.2s;
+}
+
+.mode-toggle button.active, .state-selector button.active {
+  background: var(--btn-accent, var(--accent-cyan));
+  color: #00344F;
+}
+
+.mode-toggle button:not(.active):hover, .state-selector button:not(.active):not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.state-selector button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.state-selector {
+  margin-bottom: 0;
+}

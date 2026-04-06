@@ -1,0 +1,197 @@
+import { useState, useEffect } from 'react';
+import { Wind, Gauge, Fan, Waves } from 'lucide-react';
+import Header from '../components/Header';
+import TargetTempSlider from '../components/TargetTempSlider';
+import InfoCard from '../components/InfoCard';
+import ControlPanel from '../components/ControlPanel';
+import { DeviceState } from '../types';
+import { getDevice, setTargetTemperature, setFanControl, setTrapdoorControl } from '../services/api';
+import { wsService } from '../services/websocket';
+import '../styles/pages/Dashboard.css';
+
+interface DashboardProps {
+  deviceId: string;
+}
+
+const Dashboard = ({ deviceId }: DashboardProps) => {
+    const [device, setDevice] = useState<DeviceState | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchDevice = async () => {
+            try {
+                const data = await getDevice(deviceId);
+                setDevice(data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching device:', err);
+                // Using mock data for demo since local backend might not be running yet
+                setDevice({
+                    id: deviceId,
+                    temperature_current: 35,
+                    temperature_target: 22,
+                    air_flux: 450,
+                    fan_mode: 'auto',
+                    fan_speed: 'haut',
+                    trapdoor_mode: 'auto',
+                    trapdoor_state: 'open',
+                    is_heating: true,
+                    last_update: new Date().toISOString()
+                });
+                setLoading(false);
+                // setError('Erreur de connexion au capteur.');
+            }
+        };
+
+        fetchDevice();
+        wsService.connect(deviceId);
+        
+        const unsubscribe = wsService.subscribe((data) => {
+            if (data.type === 'telemetry' || data.type === 'state_update') {
+                setDevice(prev => prev ? { ...prev, ...data.payload } : data.payload);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+            wsService.disconnect();
+        };
+    }, [deviceId]);
+
+    const handleTempChange = async (val: number) => {
+        if (!device) return;
+        setDevice({ ...device, temperature_target: val });
+
+        try {
+            await setTargetTemperature(deviceId, val);
+        } catch (err) {
+            console.error('Failed to update temperature:', err);
+        }
+    };
+
+    const handleFanModeChange = async (mode: 'auto' | 'manual') => {
+        if (!device) return;
+        setDevice({ ...device, fan_mode: mode });
+
+        try {
+            await setFanControl(deviceId, mode, device.fan_speed);
+        } catch (err) {
+            console.error('Failed to update fan mode:', err);
+        }
+    };
+
+    const handleFanSpeedChange = async (speed: string) => {
+        if (!device) return;
+        setDevice({ ...device, fan_speed: speed as any });
+
+        try {
+            await setFanControl(deviceId, device.fan_mode, speed);
+        } catch (err) {
+            console.error('Failed to update fan speed:', err);
+        }
+    };
+
+    const handleTrapdoorModeChange = async (mode: 'auto' | 'manual') => {
+        if (!device) return;
+        setDevice({ ...device, trapdoor_mode: mode });
+        try {
+            await setTrapdoorControl(deviceId, mode, device.trapdoor_state);
+        } catch (err) {
+            console.error('Failed to update trapdoor mode:', err);
+        }
+    };
+
+    const handleTrapdoorStateChange = async (state: string) => {
+        if (!device) return;
+        setDevice({ ...device, trapdoor_state: state as any });
+        try {
+            await setTrapdoorControl(deviceId, device.trapdoor_mode, state);
+        } catch (err) {
+            console.error('Failed to update trapdoor state:', err);
+        }
+    };
+
+    if (loading) return <div className="loading-screen">Chargement...</div>;
+    if (error) return <div className="error-screen">{error}</div>;
+    if (!device) return null;
+
+    return (
+        <div className="dashboard-page">
+            <Header title="SAH APP" />
+            
+            <div className="target-temp-container">
+                <TargetTempSlider 
+                    label="Température Cible" 
+                    value={device.temperature_target} 
+                    min={15} 
+                    max={30} 
+                    onChange={handleTempChange} 
+                />
+
+                {device.is_heating && (
+                    <div className="status-banner heating">
+                        <div className="status-dot"></div>
+                        <span>CHAUFFAGE ACTIF</span>
+                    </div>
+                )}
+                </div>
+
+            <div className="info-grid">
+                <InfoCard 
+                    label="Admission"
+                    value={11} 
+                    unit="°C" 
+                    sublabel="Température Extérieur" 
+                    Icon={Waves} 
+                    color="var(--accent-cyan)"
+                />
+                <InfoCard 
+                    label="Sortie"
+                    value={device.temperature_current} 
+                    unit="°C"
+                    sublabel="Température en Sortie" 
+                    Icon={Gauge} 
+                    color="var(--accent-peach)"
+                />
+            </div>
+
+            <div className="manual-controls-header">
+                <div className="header-line"></div>
+                <span>CONTRÔLES MANUELS</span>
+            </div>
+
+            <ControlPanel 
+                title="Flux de sortie"
+                subtitle={device.trapdoor_mode === 'auto' ? 'Automatique' : 'Manuel'}
+                Icon={Wind}
+                mode={device.trapdoor_mode}
+                onModeChange={handleTrapdoorModeChange}
+                state={device.trapdoor_state}
+                states={['close', 'open']}
+                onStateChange={handleTrapdoorStateChange}
+            />
+
+            <ControlPanel 
+                title="Ventilateur"
+                subtitle={`Vitesse : ${device.fan_speed.charAt(0).toUpperCase() + device.fan_speed.slice(1)}`}
+                Icon={Fan}
+                mode={device.fan_mode}
+                onModeChange={handleFanModeChange}
+                state={device.fan_speed}
+                states={['off', 'bas', 'moy', 'haut']}
+                onStateChange={handleFanSpeedChange}
+            />
+
+            <div className="flow-card">
+                <span className="flow-label">DÉBIT D'AIR</span>
+                <div className="flow-value">
+                    <span className="val">{device.air_flux}</span>
+                    <span className="unit">m³/h</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Dashboard;

@@ -1,0 +1,119 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.target-temp-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.status-banner {
+  background: rgba(255, 158, 128, 0.1);
+  border: 1px solid rgba(255, 158, 128, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--accent-peach);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-peach);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.status-banner span {
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--accent-peach);
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.manual-controls-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.header-line {
+  height: 1px;
+  background: #5B4039;
+  flex: 0 0 30px;
+}
+
+.manual-controls-header span {
+  font-family: 'Space Grotesk', 'Poppins', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 0.45px;
+  color: var(--text-primary);
+}
+
+.flow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  background: #050606;
+  border-radius: 15px;
+}
+
+.flow-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #AB8980;
+}
+
+.flow-value {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.flow-value .val {
+  font-family: 'Space Grotesk', 'Poppins', Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.flow-value .unit {
+  font-family: 'Space Grotesk', 'Poppins', Arial, sans-serif;
+  font-size: 16px;
+  color: #687990;
+  font-weight: 300;
+}
+
+.loading-screen, .error-screen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: var(--text-secondary);
+}

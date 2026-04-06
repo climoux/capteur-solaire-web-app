@@ -1,0 +1,59 @@
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.slider-label {
+  color: var(--accent-peach);
+  font-family: 'Space Grotesk', 'Poppins', 'Segoe UI', sans-serif;
+  font-weight: bold;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+}
+
+.slider-value {
+  font-family: 'Space Grotesk', 'Poppins', 'Segoe UI', sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.slider-track-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.slider-input {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  outline: none;
+  margin: 20px 0 15px 0;
+  background-image: linear-gradient(90deg, #ff9e80 var(--percentage), transparent var(--percentage));
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 158, 128, 0.5);
+  border: 4px solid var(--accent-peach);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #AB898080;
+  font-family: 'JetBrains Mono', 'Poppins', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
