@@ -1,10 +1,13 @@
 export interface DeviceState {
     id: string;
-    temperature_current: number;
-    temperature_target: number;
-    air_flux: number;
+    temperature: {
+        in: number;
+        out: number;
+        target: number;
+    };
+    airflow: number;
     fan_mode: 'auto' | 'manual';
-    fan_speed: 'off' | 'bas' | 'moy' | 'haut';
+    fan_speed: number;
     trapdoor_mode: 'auto' | 'manual';
     trapdoor_state: 'open' | 'close';
     is_heating: boolean;
@@ -14,5 +17,11 @@ export interface DeviceState {
 export interface TelemetryPoint {
     timestamp: string;
     temperature: number;
-    air_flux: number;
+    airflow: number;
+}
+
+
+export interface InfoType {
+    text: string;
+    color: 'var(--success)' | 'var(--error)' | 'var(--text-secondary)';
 }

@@ -1,20 +1,35 @@
 import { useState, useEffect } from 'react';
 import { Wind, Gauge, Fan, Waves } from 'lucide-react';
+
 import Header from '../components/Header';
 import TargetTempSlider from '../components/TargetTempSlider';
 import InfoCard from '../components/InfoCard';
-import ControlPanel from '../components/ControlPanel';
+import Selector from '../components/Selector';
+
 import { DeviceState } from '../types';
+
 import { getDevice, setTargetTemperature, setFanControl, setTrapdoorControl } from '../services/api';
 import { wsService } from '../services/websocket';
+
 import '../styles/pages/Dashboard.css';
+import { convertTemp } from '../utils/convertTemp';
 
 interface DashboardProps {
   deviceId: string;
 }
 
+const mapSpeedToLabel = (value: number) => {
+    if(value === 0) return 'off';
+    if(value > 0 && value <= 1500) return 'basse';
+    if(value > 1500 && value <= 2250) return 'moyenne';
+    if(value > 2250) return 'haute';
+    return 'off';
+}
+
 const Dashboard = ({ deviceId }: DashboardProps) => {
     const [device, setDevice] = useState<DeviceState | null>(null);
+    const [fanSpeed, setFanSpeed] = useState<'off' | 'basse' | 'moyenne' | 'haute'>('off');
+    const [unit, setUnit] = useState<{ current: 'C' | 'F'; previous?: 'C' | 'F' }>({ current: 'C', previous: undefined });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,30 +37,21 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         const fetchDevice = async () => {
             try {
                 const data = await getDevice(deviceId);
-                setDevice(data);
+                setDevice({
+                    id: data.deviceId,
+                    last_update: data.last_seen,
+                    ...data.state
+                });
+                setFanSpeed(mapSpeedToLabel(data.state.fan_speed));
                 setLoading(false);
             } catch (err) {
-                console.error('Error fetching device:', err);
-                // Using mock data for demo since local backend might not be running yet
-                setDevice({
-                    id: deviceId,
-                    temperature_current: 35,
-                    temperature_target: 22,
-                    air_flux: 450,
-                    fan_mode: 'auto',
-                    fan_speed: 'haut',
-                    trapdoor_mode: 'auto',
-                    trapdoor_state: 'open',
-                    is_heating: true,
-                    last_update: new Date().toISOString()
-                });
                 setLoading(false);
-                // setError('Erreur de connexion au capteur.');
+                setError("Erreur de connexion au capteur.");
             }
         };
 
         fetchDevice();
-        wsService.connect(deviceId);
+        /*wsService.connect(deviceId);
         
         const unsubscribe = wsService.subscribe((data) => {
             if (data.type === 'telemetry' || data.type === 'state_update') {
@@ -56,12 +62,18 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         return () => {
             unsubscribe();
             wsService.disconnect();
-        };
+        };*/
     }, [deviceId]);
 
     const handleTempChange = async (val: number) => {
         if (!device) return;
-        setDevice({ ...device, temperature_target: val });
+        setDevice({
+            ...device,
+            temperature: {
+                ...device.temperature,
+                target: val
+            }
+        });
 
         try {
             await setTargetTemperature(deviceId, val);
@@ -75,7 +87,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         setDevice({ ...device, fan_mode: mode });
 
         try {
-            await setFanControl(deviceId, mode, device.fan_speed);
+            await setFanControl(deviceId, mode, fanSpeed);
         } catch (err) {
             console.error('Failed to update fan mode:', err);
         }
@@ -112,6 +124,17 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         }
     };
 
+    // On cherche l'unité dans localStorage (si il y a)
+    useEffect(() => {
+        if(device){
+            const savedUnit = localStorage.getItem('TEMP_UNIT') as 'C' | 'F' | null;
+            const previousUnit = localStorage.getItem('PREV_TEMP_UNIT') as 'C' | 'F' | null;
+            if (savedUnit && previousUnit) {
+                setUnit({ current: savedUnit, previous: previousUnit });
+            }
+        }
+    }, [device]);
+
     if (loading) return <div className="loading-screen">Chargement...</div>;
     if (error) return <div className="error-screen">{error}</div>;
     if (!device) return null;
@@ -123,10 +146,11 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
             <div className="target-temp-container">
                 <TargetTempSlider 
                     label="Température Cible" 
-                    value={device.temperature_target} 
-                    min={15} 
-                    max={30} 
-                    onChange={handleTempChange} 
+                    value={(unit.current && unit.previous) ? Math.round(convertTemp(device.temperature.target, unit.previous, unit.current)) : device.temperature.target} 
+                    min={unit.current === 'C' ? 10 : 50} 
+                    max={unit.current === 'C' ? 30 : 86}
+                    unit={unit.current ?? 'C'}
+                    onChange={handleTempChange}
                 />
 
                 {device.is_heating && (
@@ -140,16 +164,16 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
             <div className="info-grid">
                 <InfoCard 
                     label="Admission"
-                    value={11} 
-                    unit="°C" 
+                    value={(unit.current && unit.previous) ? Math.round(convertTemp(device.temperature.in, unit.previous, unit.current)) : device.temperature.in} 
+                    unit={unit.current ?? 'C'}
                     sublabel="Température Extérieur" 
                     Icon={Waves} 
                     color="var(--accent-cyan)"
                 />
                 <InfoCard 
                     label="Sortie"
-                    value={device.temperature_current} 
-                    unit="°C"
+                    value={(unit.current && unit.previous) ? Math.round(convertTemp(device.temperature.out, unit.previous, unit.current)) : device.temperature.out} 
+                    unit={unit.current ?? 'C'}
                     sublabel="Température en Sortie" 
                     Icon={Gauge} 
                     color="var(--accent-peach)"
@@ -161,7 +185,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
                 <span>CONTRÔLES MANUELS</span>
             </div>
 
-            <ControlPanel 
+            <Selector 
                 title="Flux de sortie"
                 subtitle={device.trapdoor_mode === 'auto' ? 'Automatique' : 'Manuel'}
                 Icon={Wind}
@@ -172,13 +196,13 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
                 onStateChange={handleTrapdoorStateChange}
             />
 
-            <ControlPanel 
+            <Selector 
                 title="Ventilateur"
-                subtitle={`Vitesse : ${device.fan_speed.charAt(0).toUpperCase() + device.fan_speed.slice(1)}`}
+                subtitle={`Vitesse : ${fanSpeed.charAt(0).toUpperCase() + fanSpeed.slice(1)}`}
                 Icon={Fan}
                 mode={device.fan_mode}
                 onModeChange={handleFanModeChange}
-                state={device.fan_speed}
+                state={fanSpeed}
                 states={['off', 'bas', 'moy', 'haut']}
                 onStateChange={handleFanSpeedChange}
             />
@@ -186,7 +210,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
             <div className="flow-card">
                 <span className="flow-label">DÉBIT D'AIR</span>
                 <div className="flow-value">
-                    <span className="val">{device.air_flux}</span>
+                    <span className="val">{device.airflow}</span>
                     <span className="unit">m³/h</span>
                 </div>
             </div>

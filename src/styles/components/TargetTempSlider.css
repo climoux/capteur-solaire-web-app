@@ -5,6 +5,13 @@
   margin-bottom: 10px;
 }
 
+.slider-icon-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px
+}
+
 .slider-label {
   color: var(--accent-peach);
   font-family: 'Space Grotesk', 'Poppins', 'Segoe UI', sans-serif;
@@ -14,11 +21,20 @@
   letter-spacing: 0.45px;
 }
 
+.slider-label.settings {
+  font-family: 'Poppins', 'Segoe UI', 'Arial', sans-serif;
+  font-weight: 500;
+  text-transform: none;
+  color: var(--text-primary);
+} 
+
 .slider-value {
   font-family: 'Space Grotesk', 'Poppins', 'Segoe UI', sans-serif;
   font-size: 1.5rem;
   font-weight: bold;
 }
+
+.slider-value.settings { color: var(--accent-peach); }
 
 .slider-track-wrapper {
   position: relative;

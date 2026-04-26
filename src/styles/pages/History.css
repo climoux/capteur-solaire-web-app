@@ -8,8 +8,10 @@
 }
 
 .section-title {
-  font-size: 14px;
-  font-weight: 700;
+  margin-left: 5px;
+  font-family: 'Space Grotesk', 'Poppins', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
   color: var(--text-secondary);
   margin-bottom: 12px;
   text-transform: uppercase;
@@ -44,4 +46,8 @@
   font-size: 16px;
   font-weight: 800;
   color: var(--accent-peach);
+}
+
+tspan {
+  font-size: 14px;
 }

@@ -12,7 +12,7 @@ class WebSocketService {
       this.socket.close();
     }
 
-    const wsUrl = `ws://localhost:5001/ws/${deviceId}`;
+    const wsUrl = `ws://localhost:5001/ws/devices/${deviceId}`;
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {

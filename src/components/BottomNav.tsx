@@ -9,10 +9,10 @@ const BottomNav = () => {
                 <LayoutDashboard size={24} />
                 <span>DASHBOARD</span>
             </NavLink>
-            <NavLink to="/history" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            {/*<NavLink to="/history" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <History size={24} />
                 <span>HISTORIQUE</span>
-            </NavLink>
+            </NavLink>*/}
             <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <Settings size={24} />
                 <span>PARAMÈTRES</span>

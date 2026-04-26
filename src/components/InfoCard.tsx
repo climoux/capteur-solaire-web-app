@@ -20,7 +20,7 @@ const InfoCard = ({ label, value, unit, sublabel, Icon, color = '#8DCDFF' }: Inf
             <div className="info-card-body-container">
                 <div className="info-card-body">
                     <span className="info-card-value">{value}</span>
-                    <span className="info-card-unit">{unit}</span>
+                    <span className="info-card-unit">°{unit}</span>
                 </div>
                 <span className="info-card-sublabel">{sublabel}</span>
             </div>

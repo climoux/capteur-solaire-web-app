@@ -1,37 +1,55 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, Terminal } from 'lucide-react';
+
 import Header from '../components/Header';
-import TargetTempSlider from '../components/TargetTempSlider';
+import { TargetTempSliderSettings } from '../components/TargetTempSlider';
+
 import '../styles/pages/Settings.css';
+import '../styles/components/Selector.css';
+
+import { convertTemp } from '../utils/convertTemp';
 
 interface SettingsProps {
     deviceId: string;
 }
 
 const Settings = ({ deviceId }: SettingsProps) => {
-    const [token, setToken] = useState(localStorage.getItem('authToken') || '');
     const [threshold, setThreshold] = useState(72);
     const [notifTemp, setNotifTemp] = useState(true);
-    const [notifMaint, setNotifMaint] = useState(false);
-    const [unit, setUnit] = useState<'C' | 'F'>('C');
+    const [unit, setUnit] = useState<{ current: 'C' | 'F'; previous?: 'C' | 'F' }>({ current: 'C', previous: undefined });
 
+    // Tout d'abord, on regarde si une unité et un seuil sont déjà enregistrés dans le localStorage
     useEffect(() => {
-        localStorage.setItem('authToken', token);
-    }, [token]);
+        const savedUnit = localStorage.getItem('TEMP_UNIT') as 'C' | 'F' | null;
+        const savedThreshold = localStorage.getItem('TEMP_THRESHOLD');
+        if (savedUnit && savedThreshold) {
+            setUnit({ current: savedUnit, previous: undefined });
+            setThreshold(parseInt(savedThreshold));
+        }
+    }, []);
+
+    const handleUnitChange = (newUnit: 'C' | 'F') => {
+        const previousUnit = unit.current;
+        setUnit({ current: newUnit, previous: previousUnit });
+        const newThreshold = Math.round(convertTemp(threshold, previousUnit, newUnit));
+        setThreshold(newThreshold);
+        // On enregistre la nouvelle unité et le nouveau seuil dans localStorage
+        localStorage.setItem('TEMP_UNIT', newUnit);
+        localStorage.setItem('TEMP_THRESHOLD', newThreshold.toString());
+    }
 
     return (
         <div className="settings-page">
             <Header title="RÉGLAGES" />
 
-            <section className="settings-section">
-                <TargetTempSlider 
-                    label="Seuil d'alerte" 
-                    value={threshold} 
-                    min={40} 
-                    max={100} 
-                    onChange={setThreshold} 
-                />
-            </section>
+            <TargetTempSliderSettings
+                label="Seuil d'alerte" 
+                value={threshold}
+                min={unit.current === 'C' ? 40 : 104}
+                max={unit.current === 'C' ? 100 : 212}
+                unit={unit.current ?? 'C'}
+                onChange={setThreshold} 
+            />
 
             <section className="settings-section">
                 <h2 className="section-title">CONNEXION</h2>
@@ -67,9 +85,19 @@ const Settings = ({ deviceId }: SettingsProps) => {
                 <div className="settings-card">
                     <div className="setting-item column">
                         <span className="sub-label">UNITÉS</span>
-                        <div className="unit-toggle">
-                            <button className={unit === 'C' ? 'active' : ''} onClick={() => setUnit('C')}>°C</button>
-                            <button className={unit === 'F' ? 'active' : ''} onClick={() => setUnit('F')}>°F</button>
+                        <div className="mode-toggle" style={{ width:'100%', marginBottom: 0 }}>
+                            <button 
+                                className={unit.current === 'C' ? 'active' : ''} 
+                                onClick={() => handleUnitChange('C')}
+                            >
+                                °C
+                            </button>
+                            <button 
+                                className={unit.current === 'F' ? 'active' : ''} 
+                                onClick={() => handleUnitChange('F')}
+                            >
+                                °F
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -77,7 +105,7 @@ const Settings = ({ deviceId }: SettingsProps) => {
 
             <div className="app-version">
                 <p>Version 1.0.0</p>
-                <p>© 2026 SAH</p>
+                <p>Clément Menguy © 2026</p>
             </div>
         </div>
     );

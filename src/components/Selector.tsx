@@ -1,19 +1,20 @@
 import { LucideIcon } from 'lucide-react';
-import '../styles/components/ControlPanel.css';
 
-interface ControlPanelProps {
+import '../styles/components/Selector.css';
+
+interface SelectorProps {
     title: string;
     subtitle: string;
     Icon: LucideIcon;
     mode: 'auto' | 'manual';
     onModeChange: (mode: 'auto' | 'manual') => void;
-    state: string;
-    states: string[];
+    state?: string;
+    states?: string[];
     onStateChange: (state: string) => void;
     accentColor?: string;
 }
 
-const ControlPanel = ({ 
+const Selector = ({ 
     title, 
     subtitle, 
     Icon, 
@@ -23,11 +24,11 @@ const ControlPanel = ({
     states, 
     onStateChange,
     accentColor = 'var(--accent-cyan)'
-}: ControlPanelProps) => {
+}: SelectorProps) => {
     return (
-        <div className="control-panel">
-            <div className="control-panel-header">
-                <div className="control-icon-wrapper">
+        <div className="selector">
+            <div className="selector-header">
+                <div className="selector-icon-wrapper">
                     <Icon size={24} />
                 </div>
                 <div className="control-info">
@@ -52,21 +53,23 @@ const ControlPanel = ({
                 </button>
             </div>
 
-            <div className="state-selector">
-                {states.map((s) => (
-                    <button
-                        key={s}
-                        className={state === s ? 'active' : ''}
-                        style={state === s ? ({ '--btn-accent': accentColor } as React.CSSProperties) : {}}
-                        onClick={() => onStateChange(s)}
-                        disabled={mode === 'auto'}
-                    >
-                        {s.toUpperCase()}
-                    </button>
-                ))}
-            </div>
+            {state && states && (
+                <div className="state-selector">
+                    {states.map((s) => (
+                        <button
+                            key={s}
+                            className={state === s ? 'active' : ''}
+                            style={state === s ? ({ '--btn-accent': accentColor } as React.CSSProperties) : {}}
+                            onClick={() => onStateChange(s)}
+                            disabled={mode === 'auto'}
+                        >
+                            {s.toUpperCase()}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
 
-export default ControlPanel;
+export default Selector;
