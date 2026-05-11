@@ -11,7 +11,7 @@ class WebSocketService {
       this.socket.close();
     }
 
-    const wsUrl = `ws://localhost:5001/ws/devices/${deviceId}?token=${localStorage.getItem('AUTH_SECRET')}`; // Remplacer par api-sah.wevaw.com
+    const wsUrl = `wss://api-sah.wevaw.com/ws/devices/${deviceId}?token=${localStorage.getItem('AUTH_SECRET')}`;
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
