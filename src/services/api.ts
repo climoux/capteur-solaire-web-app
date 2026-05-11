@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://api-sah.wevaw.com';
+const API_BASE_URL = /*'https://api-sah.wevaw.com';*/'http://localhost:5001';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -24,20 +24,20 @@ export const getDevice = async (id: string) => {
     return response.data;
 };
 
-export const setTargetTemperature = async (id: string, temperature: number) => {
-    const response = await api.post(`/devices/${id}/command/temperature`, { temperature });
+export const setTargetTemperature = async (id: string, targetTemperature: number) => {
+    const response = await api.post(`/devices/${id}/command/temperature`, { targetTemperature });
     return response.data;
 };
 
-export const setFanControl = async (id: string, mode: string, speed: string) => {
+export const setFanControl = async (id: string, mode: string, speed: number) => {
     const response = await api.post(`/devices/${id}/command/fan`, { mode, speed });
     return response.data;
 };
 
-export const setTrapdoorControl = async (id: string, mode: string, state: string) => {
+/*export const setTrapdoorControl = async (id: string, mode: string, state: string) => {
     const response = await api.post(`/devices/${id}/command/trapdoor`, { mode, state });
     return response.data;
-};
+};*/
 
 export const getHistory = async (id: string) => {
     const response = await api.get(`/devices/${id}/history`);

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useState } from 'react';
 
 import Dashboard from './pages/Dashboard';
-import History from './pages/History';
+//import History from './pages/History';
 import Settings from './pages/Settings';
 import PairDevice from './pages/PairDevice';
 

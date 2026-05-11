@@ -3,16 +3,15 @@ type MessageHandler = (data: any) => void;
 class WebSocketService {
   private socket: WebSocket | null = null;
   private handlers: Set<MessageHandler> = new Set();
-  private deviceId: string | null = null;
   private reconnectTimeout: number = 5000;
 
   connect(deviceId: string) {
-    this.deviceId = deviceId;
     if (this.socket) {
+      this.socket.onclose = null;
       this.socket.close();
     }
 
-    const wsUrl = `ws://localhost:5001/ws/devices/${deviceId}`;
+    const wsUrl = `ws://localhost:5001/ws/devices/${deviceId}?token=${localStorage.getItem('AUTH_SECRET')}`; // Remplacer par api-sah.wevaw.com
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
@@ -41,6 +40,7 @@ class WebSocketService {
 
   disconnect() {
     if (this.socket) {
+      this.socket.onclose = null;
       this.socket.close();
       this.socket = null;
     }

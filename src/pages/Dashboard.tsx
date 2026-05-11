@@ -8,7 +8,7 @@ import Selector from '../components/Selector';
 
 import { DeviceState } from '../types';
 
-import { getDevice, setTargetTemperature, setFanControl, setTrapdoorControl } from '../services/api';
+import { getDevice, setTargetTemperature, setFanControl } from '../services/api';
 import { wsService } from '../services/websocket';
 
 import '../styles/pages/Dashboard.css';
@@ -20,10 +20,17 @@ interface DashboardProps {
 
 const mapSpeedToLabel = (value: number) => {
     if(value === 0) return 'off';
-    if(value > 0 && value <= 1500) return 'basse';
-    if(value > 1500 && value <= 2250) return 'moyenne';
-    if(value > 2250) return 'haute';
+    if(value === 63) return 'basse';
+    if(value === 127) return 'moyenne';
+    if(value === 255) return 'haute';
     return 'off';
+}
+const mapLabelToSpeed = (value: string) => {
+    if(value === 'off') return 0;
+    if(value === 'basse') return 63;
+    if(value === 'moyenne') return 127;
+    if(value === 'haute') return 255;
+    return 0;
 }
 
 const Dashboard = ({ deviceId }: DashboardProps) => {
@@ -51,7 +58,8 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         };
 
         fetchDevice();
-        /*wsService.connect(deviceId);
+        
+        wsService.connect(deviceId);
         
         const unsubscribe = wsService.subscribe((data) => {
             if (data.type === 'telemetry' || data.type === 'state_update') {
@@ -62,7 +70,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         return () => {
             unsubscribe();
             wsService.disconnect();
-        };*/
+        };
     }, [deviceId]);
 
     const handleTempChange = async (val: number) => {
@@ -87,7 +95,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         setDevice({ ...device, fan_mode: mode });
 
         try {
-            await setFanControl(deviceId, mode, fanSpeed);
+            await setFanControl(deviceId, mode, mapLabelToSpeed(fanSpeed));
         } catch (err) {
             console.error('Failed to update fan mode:', err);
         }
@@ -95,16 +103,19 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
 
     const handleFanSpeedChange = async (speed: string) => {
         if (!device) return;
-        setDevice({ ...device, fan_speed: speed as any });
+        const speedValue = mapLabelToSpeed(speed);
+        
+        setDevice({ ...device, fan_speed: speedValue });
+        setFanSpeed(mapSpeedToLabel(speedValue));
 
         try {
-            await setFanControl(deviceId, device.fan_mode, speed);
+            await setFanControl(deviceId, device.fan_mode, speedValue);
         } catch (err) {
             console.error('Failed to update fan speed:', err);
         }
     };
 
-    const handleTrapdoorModeChange = async (mode: 'auto' | 'manual') => {
+    /*const handleTrapdoorModeChange = async (mode: 'auto' | 'manual') => {
         if (!device) return;
         setDevice({ ...device, trapdoor_mode: mode });
         try {
@@ -122,7 +133,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
         } catch (err) {
             console.error('Failed to update trapdoor state:', err);
         }
-    };
+    };*/
 
     // On cherche l'unité dans localStorage (si il y a)
     useEffect(() => {
@@ -185,7 +196,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
                 <span>CONTRÔLES MANUELS</span>
             </div>
 
-            <Selector 
+            {/*<Selector 
                 title="Flux de sortie"
                 subtitle={device.trapdoor_mode === 'auto' ? 'Automatique' : 'Manuel'}
                 Icon={Wind}
@@ -194,7 +205,7 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
                 state={device.trapdoor_state}
                 states={['close', 'open']}
                 onStateChange={handleTrapdoorStateChange}
-            />
+            />*/}
 
             <Selector 
                 title="Ventilateur"
@@ -203,17 +214,17 @@ const Dashboard = ({ deviceId }: DashboardProps) => {
                 mode={device.fan_mode}
                 onModeChange={handleFanModeChange}
                 state={fanSpeed}
-                states={['off', 'bas', 'moy', 'haut']}
+                states={['off', 'basse', 'moyenne', 'haute']}
                 onStateChange={handleFanSpeedChange}
             />
 
-            <div className="flow-card">
+            {/*<div className="flow-card">
                 <span className="flow-label">DÉBIT D'AIR</span>
                 <div className="flow-value">
                     <span className="val">{device.airflow}</span>
                     <span className="unit">m³/h</span>
                 </div>
-            </div>
+            </div>*/}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 import '../styles/components/TargetTempSlider.css';
@@ -14,25 +14,37 @@ interface TargetTempSliderProps {
 }
 
 const TargetTempSlider = ({ value, min, max, onChange, label, unit }: TargetTempSliderProps) => {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(parseInt(e.target.value, 10));
+    const [temp, setTemp] = useState<number>(0);
+    const [percentage, setPercentage] = useState<number>(0);
+
+    const handleMouseUp = (value: number) => {
+        setTemp(value);
+        onChange(value);
     };
 
-    const percentage = ((value - min) / (max - min)) * 100;
+
+    useEffect(() => {
+        setTemp(value);
+        setPercentage(((value - min) / (max - min)) * 100);
+    }, [value]);
 
     return (
         <div className="slider-container">
             <div className="slider-header">
                 <span className="slider-label">{label}</span>
-                <span className="slider-value">{value}°{unit}</span>
+                <span className="slider-value">{temp}°{unit}</span>
             </div>
             <div className="slider-track-wrapper">
                 <input
                     type="range"
                     min={min}
                     max={max}
-                    value={value}
-                    onChange={handleChange}
+                    value={temp}
+                    onChange={(e) => {
+                        setTemp(parseInt(e.target.value, 10));
+                        setPercentage(((parseInt(e.target.value, 10) - min) / (max - min)) * 100);
+                    }}
+                    onMouseUp={() => handleMouseUp(temp)}
                     className="slider-input"
                     style={{ '--percentage': `${percentage}%` } as React.CSSProperties}
                 />

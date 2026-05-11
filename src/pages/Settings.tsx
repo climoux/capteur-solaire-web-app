@@ -31,9 +31,10 @@ const Settings = ({ deviceId }: SettingsProps) => {
     const handleUnitChange = (newUnit: 'C' | 'F') => {
         const previousUnit = unit.current;
         setUnit({ current: newUnit, previous: previousUnit });
-        const newThreshold = Math.round(convertTemp(threshold, previousUnit, newUnit));
+        const newThreshold = Math.round(convertTemp(threshold, previousUnit, newUnit, true));
         setThreshold(newThreshold);
         // On enregistre la nouvelle unité et le nouveau seuil dans localStorage
+        localStorage.setItem('PREV_TEMP_UNIT', previousUnit);
         localStorage.setItem('TEMP_UNIT', newUnit);
         localStorage.setItem('TEMP_THRESHOLD', newThreshold.toString());
     }
